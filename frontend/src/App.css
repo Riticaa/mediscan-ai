@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
+
+/* ─── MediScan AI Global Animations ──────────────────────────── */
+
+/* Loading spinner rotation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  animation: spin 0.9s linear infinite;
+}
+
+/* Pulse dot for active loading step */
+@keyframes pulse-scale {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.4); opacity: 0.6; }
+}
+.pulse-dot {
+  animation: pulse-scale 1s ease-in-out infinite;
+}
+
+/* Chat panel slide-in from right */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.chat-panel {
+  animation: slideInRight 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Chat message bubble fade-in */
+@keyframes bubbleFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chat-bubble {
+  animation: bubbleFadeIn 0.22s ease-out;
+}
+
+/* Gentle card hover lift */
+@keyframes cardHover {
+  from { box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  to   { box-shadow: 0 6px 24px rgba(22,163,74,0.12); }
+}
+
+/* ─── Utility ─────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display { font-family: 'DM Serif Display', serif; }
+.font-mono    { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+/* Nav desktop / mobile helpers */
+@media (max-width: 768px) {
+  .nav-desktop { display: none !important; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar        { width: 6px; }
+::-webkit-scrollbar-track  { background: #f0fdf4; }
+::-webkit-scrollbar-thumb  { background: #bbf7d0; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #16a34a; }
+
+/* ─── Chatbot Widget Enhanced Styling ───────────────────────────── */
+@keyframes chatFloatGlow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(22, 163, 74, 0.4), 0 0 0 0 rgba(22, 163, 74, 0.35);
+  }
+  50% {
+    box-shadow: 0 6px 28px rgba(22, 163, 74, 0.55), 0 0 0 10px rgba(22, 163, 74, 0);
+  }
+}
+
+.chat-floating-btn {
+  animation: chatFloatGlow 3s ease-in-out infinite;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.chat-floating-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+.chat-floating-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.chat-bubble-action {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.chat-bubble-wrapper:hover .chat-bubble-action {
+  opacity: 1;
+}
+
+.chat-suggestion-chip {
+  transition: all 0.18s ease;
+}
+.chat-suggestion-chip:hover {
+  transform: translateY(-1px);
+  background: #dcfce7 !important;
+  border-color: #86efac !important;
+}
+
+/* Chat markdown content */
+.chat-formatted-text p {
+  margin: 0 0 8px 0;
+}
+.chat-formatted-text p:last-child {
+  margin-bottom: 0;
+}
+.chat-formatted-text ul, .chat-formatted-text ol {
+  margin: 4px 0 8px 18px;
+  padding: 0;
+}
+.chat-formatted-text li {
+  margin-bottom: 4px;
+}
+.chat-formatted-text strong {
+  font-weight: 600;
+  color: #14532d;
+}

@@ -21,4 +21,4 @@ def get_db():
     try:
         yield db
     finally:
-        db.close()uvicorn main:app --reload
+        db.close()
