@@ -1,91 +1,106 @@
-# 🚀 MediScan AI — Railway Deployment Guide
+# 🚀 MediScan AI — Deployment Guide (Render + Vercel)
 
-This guide walks you through deploying both the **FastAPI Backend** and the **React Vite Frontend** on [Railway](https://railway.app) from your GitHub repository: [`https://github.com/Riticaa/mediscan-ai`](https://github.com/Riticaa/mediscan-ai).
+This guide walks you through deploying MediScan AI with:
+- **Backend on [Render](https://render.com)** (Free Web Service with Docker & OCR)
+- **Frontend on [Vercel](https://vercel.com)** (Free high-speed CDN hosting for React + Vite)
+
+Repository: [`https://github.com/Riticaa/mediscan-ai`](https://github.com/Riticaa/mediscan-ai)
 
 ---
 
 ## 🏗️ Architecture Overview
 
 ```
-[ Your GitHub Repo: Riticaa/mediscan-ai ]
-                  │
-        ┌─────────┴─────────┐
-        ▼                   ▼
- [ Service 1: Backend ]    [ Service 2: Frontend ]
-  • Dockerfile (with OCR)   • Vite Preview
-  • FastAPI + PyMuPDF       • React + Tailwind
-  • RAG + Groq AI Chat      • Global Chat Widget
-        ▲                   │
-        └────── HTTPS ──────┘
-         (VITE_API_URL proxy)
+[ User Browser ]
+       │
+       ▼
+ [ Vercel Frontend ] ── (HTTPS API Requests) ──► [ Render Backend ]
+ • React 19 + Vite                                • FastAPI + PyMuPDF
+ • TailwindCSS & Framer Motion                    • Tesseract OCR
+ • Global AI Chat Floating Widget                 • Groq AI LLM + RAG
+ • Automatic SPA Routing                          • SQLite / History DB
 ```
 
 ---
 
-## 📋 Prerequisites
+## Part 1: Deploy Backend on Render
 
-1. A [Railway.app](https://railway.app) account (Log in with your GitHub account: `Riticaa`).
-2. Your **Groq API Key** (from [console.groq.com](https://console.groq.com)).
+Render provides free hosting for containerized Web Services with full Docker support (needed for Tesseract OCR).
 
----
+### Method A: Automatic via Render Blueprint (Recommended)
+1. Go to **[dashboard.render.com](https://dashboard.render.com)** and log in with GitHub (`Riticaa`).
+2. Click **"New +"** (top right) → Select **"Blueprint"**.
+3. Connect your GitHub repository: **`Riticaa/mediscan-ai`**.
+4. Render will automatically read `render.yaml`:
+   - It configures `mediscan-backend` using `backend/Dockerfile`.
+   - It sets the health check endpoint to `/health`.
+5. Under Environment Variables:
+   - For **`GROQ_API_KEY`**, enter your key from [console.groq.com](https://console.groq.com) (`gsk_...`).
+6. Click **"Apply"**. Render will build and deploy the Docker image.
 
-## Step 1: Deploy the Backend Service
+### Method B: Manual Setup on Render
+1. In Render Dashboard, click **"New +"** → **"Web Service"**.
+2. Select your repository: **`Riticaa/mediscan-ai`**.
+3. Fill in the service configuration:
+   - **Name**: `mediscan-backend`
+   - **Region**: Oregon (US West) or closest to you
+   - **Root Directory**: `backend`
+   - **Runtime**: `Docker`
+   - **Plan**: `Free`
+4. Expand **"Advanced"** and add Environment Variables:
+   | Key | Value |
+   | :--- | :--- |
+   | `GROQ_API_KEY` | Your Groq API key (`gsk_...`) |
+   | `GROQ_MODEL` | `qwen/qwen3.8-27b` |
+   | `SECRET_KEY` | *(A random 32+ character string)* |
+   | `DATABASE_URL` | `sqlite:///./mediscan.db` |
+5. Click **"Create Web Service"**.
+6. When deployment finishes, copy your live backend URL from the top of the page (e.g. `https://mediscan-backend.onrender.com`).
 
-1. Go to your **[Railway Dashboard](https://railway.app/dashboard)**.
-2. Click **"+ New Project"** → Select **"Deploy from GitHub repo"**.
-3. Choose your repository: **`Riticaa/mediscan-ai`**.
-4. Railway will create a service. Click on the newly created service tile, then go to the **"Settings"** tab:
-   - **Service Name**: Rename it to `mediscan-backend` (optional, for clarity).
-   - **Root Directory**: Set to `/backend` and click **Save**.
-   - **Builder**: Railway will automatically detect the `Dockerfile` inside `/backend`.
-5. Go to the **"Variables"** tab and add the following environment variables:
-   | Variable | Value | Description |
-   | :--- | :--- | :--- |
-   | `GROQ_API_KEY` | `gsk_...` | Your Groq API Key |
-   | `SECRET_KEY` | *(any random 32+ char secret string)* | JWT auth secret |
-   | `DATABASE_URL` | `sqlite:///./mediscan.db` | SQLite database |
-   | `GROQ_MODEL` | `qwen/qwen3.8-27b` | Primary AI model |
-6. Go back to the **"Settings"** tab:
-   - Scroll down to the **"Networking"** section.
-   - Click **"Generate Domain"** (e.g., `https://mediscan-backend-production.up.railway.app`).
-   - 📋 **Copy this domain** — you will need it in Step 2 for the frontend!
-
----
-
-## Step 2: Deploy the Frontend Service
-
-1. In the **same Railway project canvas**, click the **"+ New"** button (or right-click canvas).
-2. Select **"GitHub Repo"** → Select **`Riticaa/mediscan-ai`** again.
-3. Click on the new service, then go to the **"Settings"** tab:
-   - **Service Name**: Rename it to `mediscan-frontend`.
-   - **Root Directory**: Set to `/frontend` and click **Save**.
-4. Go to the **"Variables"** tab and add:
-   | Variable | Value | Description |
-   | :--- | :--- | :--- |
-   | `VITE_API_URL` | `https://your-backend-domain.up.railway.app` | The backend domain generated in Step 1 |
-5. Go to the **"Settings"** tab:
-   - Scroll down to **"Networking"** → Click **"Generate Domain"** (e.g., `https://mediscan-production.up.railway.app`).
-6. Click **"Deploy"** (or trigger redeploy if variables were just added).
+> [!NOTE]
+> Free Render instances spin down after inactivity and take ~45 seconds to wake up on the first request.
 
 ---
 
-## Step 3: Verify the Live Deployment
+## Part 2: Deploy Frontend on Vercel
 
-1. **Backend Health Check**:
-   Open: `https://your-backend-domain.up.railway.app/health`
-   You should see:
+Vercel provides edge caching, instant preview deployments, and zero-config builds for Vite.
+
+1. Go to **[vercel.com](https://vercel.com)** and log in with your GitHub account (`Riticaa`).
+2. Click **"Add New..."** → Select **"Project"**.
+3. Import your GitHub repository: **`mediscan-ai`**.
+4. In the **Configure Project** screen:
+   - **Project Name**: `mediscan-ai` (or customize)
+   - **Framework Preset**: `Vite` (automatically detected)
+   - **Root Directory**: Click **"Edit"** → Select **`frontend`** → Click **"Continue"**.
+5. Expand the **Environment Variables** section:
+   - **Name**: `VITE_API_URL`
+   - **Value**: Your Render Backend URL from Part 1 (e.g. `https://mediscan-backend.onrender.com`)
+   *(Make sure there is no trailing slash)*
+6. Click **"Deploy"**.
+
+Vercel will build the frontend in ~20 seconds and assign you a production URL (e.g. `https://mediscan-ai.vercel.app`).
+
+---
+
+## Part 3: Verify Your Live Deployment
+
+1. **Verify Backend Health**:
+   Open: `https://your-backend-name.onrender.com/health`
+   Expected response:
    ```json
    {"status": "healthy", "version": "1.1.0"}
    ```
 
-2. **Frontend App & AI Chatbot**:
-   Open: `https://your-frontend-domain.up.railway.app`
-   - Test the floating **"Ask MediScan AI"** button at the bottom-right.
-   - Ask a question (e.g., *"What is a normal hemoglobin range?"* or in Hindi *"नमस्ते"*).
-   - Upload a test medical report PDF/JPG to test the generalized parser, 5-level risk score, and report-synced chat.
+2. **Verify Frontend & Chat**:
+   Open your Vercel URL (`https://your-project.vercel.app`):
+   - Click the floating **"Ask MediScan AI"** button at the bottom-right corner.
+   - Send a message (*"What does an elevated ESR mean?"* or in Hindi *"हीमोग्लोबिन क्या है?"*).
+   - Test audio dictation or Text-to-Speech.
+   - Upload a test medical lab report (PDF/JPG) to test OCR extraction, biomarker classification, and synchronized chat.
 
 ---
 
 ## 🔄 Automatic Continuous Deployment (CI/CD)
 
-Whenever you push new commits to your GitHub branch (`main` or `mediscan-v2`), Railway will automatically detect the changes, rebuild, and redeploy both services without downtime!
+Whenever you push any updates to GitHub (`git push origin main`), both **Render** and **Vercel** will automatically rebuild and deploy your changes with zero manual intervention.
