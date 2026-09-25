@@ -227,14 +227,25 @@ function Hero({ onUpload }) {
         </button>
       </div>
 
-      {/* Demo report card */}
-      <div style={{width:'100%',maxWidth:780,background:C.bgCard,borderRadius:20,boxShadow:'0 4px 32px rgba(0,0,0,0.08)',overflow:'hidden',textAlign:'left'}}>
+      {/* Demo report card preview */}
+      <div 
+        onClick={onUpload}
+        title="Click to upload your own medical report"
+        style={{width:'100%',maxWidth:780,background:C.bgCard,borderRadius:20,boxShadow:'0 4px 32px rgba(0,0,0,0.08)',overflow:'hidden',textAlign:'left',cursor:'pointer',transition:'transform .2s'}}
+        onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
+        onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}
+      >
         {/* macOS dots */}
-        <div style={{padding:'14px 20px',borderBottom:`1px solid ${C.border}`,display:'flex',alignItems:'center',gap:8}}>
-          <span style={{width:12,height:12,borderRadius:'50%',background:'#ff5f56',display:'inline-block'}}/>
-          <span style={{width:12,height:12,borderRadius:'50%',background:'#ffbd2e',display:'inline-block'}}/>
-          <span style={{width:12,height:12,borderRadius:'50%',background:'#27c93f',display:'inline-block'}}/>
-          <span style={{fontSize:13,color:C.subtle,marginLeft:12,fontFamily:'monospace'}}>blood_report_oct.pdf · analyzed</span>
+        <div style={{padding:'14px 20px',borderBottom:`1px solid ${C.border}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{width:12,height:12,borderRadius:'50%',background:'#ff5f56',display:'inline-block'}}/>
+            <span style={{width:12,height:12,borderRadius:'50%',background:'#ffbd2e',display:'inline-block'}}/>
+            <span style={{width:12,height:12,borderRadius:'50%',background:'#27c93f',display:'inline-block'}}/>
+            <span style={{fontSize:13,color:C.subtle,marginLeft:12,fontFamily:'monospace'}}>Sample Preview · blood_report_oct.pdf</span>
+          </div>
+          <span style={{fontSize:11,fontWeight:700,background:'#f0fdf4',color:'#15803d',padding:'3px 10px',borderRadius:999,border:'1px solid #bbf7d0'}}>
+            Example Output
+          </span>
         </div>
 
         <div style={{padding:24}}>
@@ -262,7 +273,9 @@ function Hero({ onUpload }) {
         </div>
       </div>
 
-      <p style={{fontSize:13,color:C.subtle,marginTop:14}}>No real medical data is processed — this is a student demo.</p>
+      <p style={{fontSize:13,color:C.subtle,marginTop:14}}>
+        👆 <em>This is an interactive example preview. Click <strong>"Upload your report"</strong> above to analyze your real medical document.</em>
+      </p>
     </section>
   )
 }
@@ -438,7 +451,7 @@ function UploadSection({ onFileSelect, loading, error }) {
           Upload your report.
         </h2>
         <p style={{textAlign:'center',color:C.muted,fontSize:15,marginBottom:48,lineHeight:1.6}}>
-          Drop in a lab PDF or a photo of your report. We'll run a mock analysis right here — no data leaves your browser.
+          Drop in your lab PDF or photo of your report. Our clinical AI extracts every biomarker, checks reference intervals, and gives you a comprehensive report breakdown.
         </p>
 
         <div style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:20,alignItems:'start'}} className="upload-grid">
